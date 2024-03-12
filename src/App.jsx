@@ -44,6 +44,11 @@ export const App = () => {
     query,
   });
 
+  const handleReset = () => {
+    setQuery('');
+    setPersonFilter('all');
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -133,6 +138,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleReset}
               >
                 Reset all filters
               </a>
