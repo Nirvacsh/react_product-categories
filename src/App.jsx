@@ -27,22 +27,30 @@ function getFilteredProducts(
 ) {
   let preparedProducts = [...listOfProducts];
   const normalizedQuery = query.trim().toLowerCase();
+  const hasCategories = categories.length > 0;
+  const hasQuery = normalizedQuery !== '';
+  const isPersonFilterAll = personFilter === 'all';
 
-  if (personFilter && personFilter !== 'all') {
-    preparedProducts = preparedProducts.filter(
-      product => product.user.name === personFilter,
-    );
-  }
+  preparedProducts = preparedProducts.filter((product) => {
+    const {
+      user: { name },
+      category: { title },
+    } = product;
 
-  if (normalizedQuery) {
-    /* eslint-disable-next-line max-len */
-    preparedProducts = preparedProducts.filter(product => product.name.toLowerCase().includes(normalizedQuery));
-  }
+    if (!isPersonFilterAll && name !== personFilter) {
+      return false;
+    }
 
-  if (categories.length > 0) {
-    /* eslint-disable-next-line max-len */
-    preparedProducts = preparedProducts.filter(product => categories.includes(product.category.title));
-  }
+    if (hasQuery && !product.name.toLowerCase().includes(normalizedQuery)) {
+      return false;
+    }
+
+    if (hasCategories && !categories.includes(title)) {
+      return false;
+    }
+
+    return true;
+  });
 
   return preparedProducts;
 }
