@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
 import React from 'react';
-import cn from 'classnames';
 import './App.scss';
 
 import usersFromServer from './api/users';
@@ -9,9 +8,9 @@ import productsFromServer from './api/products';
 
 const products = productsFromServer.map((product) => {
   const category = categoriesFromServer.find(
-    (cat) => cat.id === product.categoryId
+    cat => cat.id === product.categoryId,
   );
-  const user = usersFromServer.find((person) => person.id === category.ownerId);
+  const user = usersFromServer.find(person => person.id === category.ownerId);
 
   return {
     ...product,
@@ -81,7 +80,7 @@ export const App = () => (
               All
             </a>
 
-            {categoriesFromServer.map((category) => (
+            {categoriesFromServer.map(category => (
               <a data-cy="Category" className="button mr-2 my-1" href="#/">
                 {category.title}
               </a>
@@ -157,7 +156,7 @@ export const App = () => (
           </thead>
 
           <tbody>
-            {products.map((item) => (
+            {products.map(item => (
               <tr data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
                   {item.id}
