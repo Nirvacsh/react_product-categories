@@ -19,8 +19,9 @@ const products = productsFromServer.map((product) => {
   };
 });
 
-function getFilteredProducts(listOfProducts, personFilter = 'all') {
+function getFilteredProducts(listOfProducts, personFilter = 'all', { query }) {
   let preparedProducts = [...listOfProducts];
+  const normalizedQuery = query.trim().toLowerCase();
 
   if (personFilter && personFilter !== 'all') {
     preparedProducts = preparedProducts.filter(
@@ -28,12 +29,20 @@ function getFilteredProducts(listOfProducts, personFilter = 'all') {
     );
   }
 
+  if (normalizedQuery) {
+    /* eslint-disable-next-line max-len */
+    preparedProducts = preparedProducts.filter(product => product.name.toLowerCase().includes(normalizedQuery));
+  }
+
   return preparedProducts;
 }
 
 export const App = () => {
   const [personFilter, setPersonFilter] = useState('all');
-  const filteredProducts = getFilteredProducts(products, personFilter);
+  const [query, setQuery] = useState('');
+  const filteredProducts = getFilteredProducts(products, personFilter, {
+    query,
+  });
 
   return (
     <div className="section">
@@ -81,7 +90,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -90,11 +100,14 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
+                  {query && (
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setQuery('')}
+                    />
+                  )}
                 </span>
               </p>
             </div>
