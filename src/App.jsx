@@ -19,7 +19,12 @@ const products = productsFromServer.map((product) => {
   };
 });
 
-function getFilteredProducts(listOfProducts, personFilter = 'all', { query }) {
+function getFilteredProducts(
+  listOfProducts,
+  personFilter = 'all',
+  { query },
+  categories = [],
+) {
   let preparedProducts = [...listOfProducts];
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -34,19 +39,41 @@ function getFilteredProducts(listOfProducts, personFilter = 'all', { query }) {
     preparedProducts = preparedProducts.filter(product => product.name.toLowerCase().includes(normalizedQuery));
   }
 
+  if (categories.length > 0) {
+    /* eslint-disable-next-line max-len */
+    preparedProducts = preparedProducts.filter(product => categories.includes(product.category.title));
+  }
+
   return preparedProducts;
 }
 
 export const App = () => {
   const [personFilter, setPersonFilter] = useState('all');
   const [query, setQuery] = useState('');
-  const filteredProducts = getFilteredProducts(products, personFilter, {
-    query,
-  });
+  const [categoryFilter, setCategoryFilter] = useState([]);
+  const filteredProducts = getFilteredProducts(
+    products,
+    personFilter,
+    {
+      query,
+    },
+    categoryFilter,
+  );
 
   const handleReset = () => {
     setQuery('');
     setPersonFilter('all');
+    setCategoryFilter([]);
+  };
+
+  const handleCategoryFilter = (value) => {
+    setCategoryFilter((prev) => {
+      if (prev.includes(value)) {
+        return prev.filter(item => item !== value);
+      }
+
+      return [...prev, value];
+    });
   };
 
   return (
@@ -121,13 +148,23 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                className={cn('button', 'is-success', 'mr-6', {
+                  'is-outlined': categoryFilter.length !== 0,
+                })}
               >
                 All
               </a>
 
               {categoriesFromServer.map(category => (
-                <a data-cy="Category" className="button mr-2 my-1" href="#/">
+                <a
+                  data-cy="Category"
+                  className={cn('button', 'mr-2', 'my-1', {
+                    'is-info': categoryFilter.includes(category.title),
+                  })}
+                  href="#/"
+                  onClick={() => handleCategoryFilter(category.title)}
+                  key={category.id}
+                >
                   {category.title}
                 </a>
               ))}
@@ -205,7 +242,7 @@ export const App = () => {
 
               <tbody>
                 {filteredProducts.map(item => (
-                  <tr data-cy="Product">
+                  <tr data-cy="Product" key={item.id}>
                     <td className="has-text-weight-bold" data-cy="ProductId">
                       {item.id}
                     </td>
